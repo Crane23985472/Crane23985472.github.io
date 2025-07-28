@@ -1,36 +1,36 @@
 <html>
   <head>
-    <!-- 1) Load the Power BI JavaScript SDK -->
     <script src="https://cdn.jsdelivr.net/npm/powerbi-client/dist/powerbi.js"></script>
   </head>
-  <body style="background-color: #fff;">
-    <iframe
-      id="report"
-      width="1280"
-      height="720"
-      src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8"
-      frameborder="0"
-      allowfullscreen="true">
-    </iframe>
+
+  <body>
+    <div id="reportContainer" style="width:1280px; height:720px;"></div>
 
     <script>
-      // 2) Wait until the SDK is loaded and DOM is ready
       document.addEventListener('DOMContentLoaded', () => {
-        // 3) Get a handle on the embedded report
-        const reportContainer = document.getElementById('report');
-        const report = powerbi.get(reportContainer);
+        // 1) Grab the container
+        const container = document.getElementById('reportContainer');
 
-        // 4) Retrieve and log all pages
+        // 2) Build your embed configuration
+        const embedConfig = {
+          type: 'report',
+          embedUrl:
+            'https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&groupId=me&autoAuth=true&ctid=bcb5391c-9011-4574-9c56-9688903edcd8',
+          settings: { filterPaneEnabled: false, navContentPaneEnabled: true }
+        };
+
+        // 3) Embed and get the report instance
+        const report = powerbi.embed(container, embedConfig);
+
+        // 4) Fetch and log pages
         report.getPages()
           .then(pages => {
-            pages.forEach(page => {
-              console.log('Display Name:', page.displayName);
-              console.log('Internal Name:', page.name);
+            pages.forEach(p => {
+              console.log('Display Name:', p.displayName);
+              console.log('Internal Name:', p.name);
             });
           })
-          .catch(err => {
-            console.error('Error fetching pages:', err);
-          });
+          .catch(err => console.error('Error fetching pages:', err));
       });
     </script>
   </body>
