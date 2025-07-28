@@ -1,7 +1,68 @@
-<html>
-<head></head>
-<body style="background-color: rgb(255, 255, 255);">
-    <iframe id="report" width="1280" height="720" src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8" frameborder="0" allowfullscreen="true"> </iframe>
-    <iframe id="report2" width="1280" height="720" src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8&bookmarkGuid=0d31a648-6c65-47ad-9c82-57c1fa4cd59e" frameborder="0" allowfullscreen="true"> </iframe>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PowerBI Carousel</title>
+
+  <style>
+    /* Container holds both iframes in the same spot */
+    .iframe-container {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    /* All iframes fill the container and stack on top of each other */
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: 0;
+      width: 100%;
+      height: 100%;
+      display: none;           /* hide by default */
+    }
+
+    /* Show the first iframe initially */
+    .iframe-container iframe:first-of-type {
+      display: block;
+    }
+  </style>
+</head>
+<body style="background-color: #fff;">
+
+  <div class="iframe-container">
+    <iframe
+      id="report"
+      src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8"
+      allowfullscreen>
+    </iframe>
+
+    <iframe
+      id="report2"
+      src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8&amp;bookmarkGuid=0d31a648-6c65-47ad-9c82-57c1fa4cd59e"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const frames = Array.from(document.querySelectorAll('.iframe-container iframe'));
+      let current = 0;
+
+      setInterval(() => {
+        // hide current
+        frames[current].style.display = 'none';
+
+        // advance index
+        current = (current + 1) % frames.length;
+
+        // show next
+        frames[current].style.display = 'block';
+      }, 30000); // 30,000ms = 30s
+    });
+  </script>
 </body>
 </html>
