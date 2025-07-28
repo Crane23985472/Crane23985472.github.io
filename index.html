@@ -1,20 +1,37 @@
 <html>
-<head></head>
-<body style="background-color: rgb(255, 255, 255);">
-    <iframe id="report" width="1280" height="720" src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8" frameborder="0" allowfullscreen="true"> </iframe>
-<script>
+  <head>
+    <!-- 1) Load the Power BI JavaScript SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/powerbi-client/dist/powerbi.js"></script>
+  </head>
+  <body style="background-color: #fff;">
+    <iframe
+      id="report"
+      width="1280"
+      height="720"
+      src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8"
+      frameborder="0"
+      allowfullscreen="true">
+    </iframe>
 
-    const srcs = ["https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&groupId=me&autoAuth=true&ctid=bcb5391c-9011-4574-9c56-9688903edcd8&bookmarkGuid=619e40d0-c23b-445b-82e7-7b88c971a0af",
-                    "https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8"
-]
-    let index = 0;
+    <script>
+      // 2) Wait until the SDK is loaded and DOM is ready
+      document.addEventListener('DOMContentLoaded', () => {
+        // 3) Get a handle on the embedded report
+        const reportContainer = document.getElementById('report');
+        const report = powerbi.get(reportContainer);
 
-    setInterval(() => {
-        index = (index + 1) % srcs.length;
-        //document.getElementById("report").src = srcs[index];
-        console.log('changed');
-    }, 20000); // 20 seconds
-    
-  
-</script><link href="chrome://theme/colors.css?sets=ui%2Cchrome&amp;version=1753469455486" rel="stylesheet" type="text/css"></body>
+        // 4) Retrieve and log all pages
+        report.getPages()
+          .then(pages => {
+            pages.forEach(page => {
+              console.log('Display Name:', page.displayName);
+              console.log('Internal Name:', page.name);
+            });
+          })
+          .catch(err => {
+            console.error('Error fetching pages:', err);
+          });
+      });
+    </script>
+  </body>
 </html>
