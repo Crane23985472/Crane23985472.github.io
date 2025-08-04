@@ -1,28 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PowerBI Carousel with Controls</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>VP4 Panel #22 Viewer</title>
+  <style>
+    /* Make sure the panel fills the viewport */
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+    }
+    #panel-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 </head>
 <body>
+  <div id="panel-container"></div>
 
-  <div class="carousel-container">
-    <!-- Add as many iframes as you like below -->
-    <iframe src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8"></iframe>
-    <iframe src="https://app.powerbi.com/reportEmbed?reportId=b0baaad4-b957-48af-ae1f-02491d2ddbbc&amp;groupId=me&amp;autoAuth=true&amp;ctid=bcb5391c-9011-4574-9c56-9688903edcd8&amp;bookmarkGuid=0d31a648-6c65-47ad-9c82-57c1fa4cd59e"></iframe>
-    <!-- You can duplicate or add more iframes here -->
-  </div>
+  <script>
+    (function() {
+      const API_URL =
+        'http://10.89.228.93/VP4_WebInterface/api/ViewPanel/GetPanel?panelId=22&windowHeight=953&windowWidth=514';
+      const NS = 'http://schemas.datacontract.org/2004/07/VP4_WebInterface.Panels';
+      let refreshTimer;
 
-  <div class="controls">
-    <button id="prevBtn">◀</button>
-    <span id="pageIndicator">1 / 2</span>
-    <button id="nextBtn">▶</button>
+      async function loadPanel() {
+        try {
+          // 1) Fetch the raw XML
+          const txt = await fetch(API_URL).then(res => res.text());
 
-    <button id="toggleAuto">Pause</button>
-    <span id="timer">30s</span>
-  </div>
+          // 2) Parse it into an XML DOM
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(txt, 'application/xml');
 
-  <script src="script.js"></script>
+          // 3) Find the <Content> node (namespace-aware)
+          let contentNode = xml.getElementsByTagNameNS(NS, 'Content')[0];
+
+          // Fallback if namespace lookup fails
+          if (!contentNode) {
+            contentNode = xml.getElementsByTagName('Content')[0];
+          }
+          if (!contentNode) {
+            console.error('No <Content> element found in response');
+            return;
+          }
+
+          // 4) Clear out previous content
+          const container = document.getElementById('panel-container');
+          container.innerHTML = '';
+
+          // 5) Import and append every child of <Content> (preserves real HTML tags)
+          Array.from(contentNode.childNodes).forEach(node => {
+            // text nodes, comments, or real elements all copy
+            const imported = document.importNode(node, true);
+            container.appendChild(imported);
+          });
+
+          // 6) Read the RefreshInterval (ms) and reschedule
+          const riNode = xml.getElementsByTagNameNS(NS, 'RefreshInterval')[0]
+                        || xml.getElementsByTagName('RefreshInterval')[0];
+          const ms = riNode ? parseInt(riNode.textContent, 10) : null;
+          if (refreshTimer) {
+            clearTimeout(refreshTimer);
+          }
+          if (ms && !isNaN(ms) && ms > 0) {
+            refreshTimer = setTimeout(loadPanel, ms);
+          }
+        }
+        catch (err) {
+          console.error('Error loading panel:', err);
+        }
+      }
+
+      // first load
+      loadPanel();
+    })();
+  </script>
 </body>
 </html>
